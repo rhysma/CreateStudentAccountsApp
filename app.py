@@ -1,16 +1,16 @@
+from flask import Flask, request, render_template, jsonify
 import csv
 import os
-from flask import Flask, request, render_template
+import subprocess
 
 app = Flask(__name__)
 
-# Specify the directory to save uploaded files
 UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Create the directory if it doesn't exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @app.route('/')
 def index():
-    return render_template('index.htm')
+    return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -26,26 +26,32 @@ def upload_file():
             with open(filepath, newline='', encoding='utf-8') as csvfile:
                 reader = csv.reader(csvfile)
                 headers = next(reader)
-                # Normalize header case to lowercase and strip whitespace before comparison
                 normalized_headers = [header.strip().lower() for header in headers]
                 if normalized_headers != ['firstname', 'lastname', 'username', 'password']:
                     return 'Invalid CSV format. Please ensure the headers are firstname, lastname, username, password.'
-        except UnicodeDecodeError:
-            # Try a different encoding if UTF-8 failed
-            try:
-                with open(filepath, newline='', encoding='iso-8859-1') as csvfile:
-                    reader = csv.reader(csvfile)
-                    headers = next(reader)
-                    normalized_headers = [header.strip().lower() for header in headers]
-                    if normalized_headers != ['firstname', 'lastname', 'username', 'password']:
-                        return 'Invalid CSV format. Please ensure the headers are firstname, lastname, username, password.'
-            except Exception as e:
-                return f'An error occurred with ISO-8859-1 encoding: {e}'
+                for row in reader:
+                    create_user_account(row[2], row[3], row[0], row[1])  # username, password, firstname, lastname
         except Exception as e:
             return f'An error occurred: {e}'
         
-        return 'File successfully uploaded and validated'
+        return 'File successfully uploaded and users created'
     else:
         return 'Invalid file type'
+
+def create_user_account(username, password, firstname, lastname):
+    command = [
+        'powershell.exe',
+        '-Command',
+        'scripts\\createusers.ps1',
+        '-username', username,
+        '-password', password,
+        '-firstname', firstname,
+        '-lastname', lastname
+    ]
+    process = subprocess.run(command, capture_output=True, text=True)
+    if process.returncode != 0:
+        print(f"Error creating user {username}: {process.stderr}")
+    return process.returncode == 0, process.stdout if process.returncode == 0 else process.stderr
+
 if __name__ == '__main__':
     app.run(debug=True)
