@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create student accounts</title>
+</head>
+<body>
+    <p>This application allows you to upload a CSV file and will create student accounts for webserver and FTP access.</p>
+    <p>CSV files should be in the format of Firstname,Lastname,username,password. Files with invalid formats will not process.</p>
+    <h1>Upload CSV File</h1>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
+    </form>
+    <p>This is an internal application for OTC CIS. For questions please contact fordt@otc.edu</p>
+</body>
+</html>
