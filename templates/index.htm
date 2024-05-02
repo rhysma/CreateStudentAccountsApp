@@ -5,7 +5,23 @@
 </head>
 <body>
     <p>This application allows you to upload a CSV file and will create student accounts for webserver and FTP access.</p>
-    <p>CSV files should be in the format of Firstname,Lastname,username,password. Files with invalid formats will not process.</p>
+    <p>CSV files should be in the format of firstname,lastname,username,password. Headers should be included. Files with invalid formats will not process.</p>
+    <h3>Example</h3>
+    <table>
+        <tr>
+            <th>firstname</th>
+            <th>lastname</th>
+            <th>username</th>
+            <th>password</th>
+        </tr>
+        <tr>
+            <td>Tiffany</td>
+            <td>Ford</td>
+            <td>fordt</td>
+            <td>Qwerty123</td>
+        </tr>
+    </table>
+
     <h1>Upload CSV File</h1>
     <form action="/upload" method="post" enctype="multipart/form-data">
         <input type="file" name="file">
